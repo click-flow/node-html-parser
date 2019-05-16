@@ -185,9 +185,17 @@ describe('HTML Parser', function () {
 			});
 			result.root.toString().should.eql('<div><!-- This is a comment --><h3></h3></div>');
 		})
+
+		// Test for <p><p></p></p>
+		it('should parse "<p>This<p>is a test</p></p>"', function () {
+			var result = parseHTML('<p>This<p>is a test</p></p>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.root.toString().should.eql('<p>This<p>is a test</p></p>');
+		})
 	});
 
-	describe('validate', function () {
 		it("should return false when html is invalid", () => {
 			const html = "<html><body><div><h1>Good</div></body></html>"
 			const resp = parseHTML(html, {
@@ -195,7 +203,7 @@ describe('HTML Parser', function () {
 			})
 			resp.root.toString().should.eql(html)
 			resp.valid.should.eql(false)
-		})
+    })
 
 		it("should return unaltered html when it is invalid", () => {
 			const html = "<html><body><div><h1>Good</div></body></html>"
@@ -210,11 +218,11 @@ describe('HTML Parser', function () {
 		// parse with validation tests
 
 		describe('with validation', function () {
-			it('should return Object with valid: true.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
+			it('should return Object with valid: false.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
 				var result = parseHTML('<p><p></p>', {
 					validate: true
 				});
-				result.valid.should.eql(true);
+				result.valid.should.eql(false);
 			})
 
 			it('should return Object with valid: true.  does not count <p><p/></p> as error. instead fixes it to <p><p></p></p>', function () {
