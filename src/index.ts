@@ -983,7 +983,10 @@ export function parse(
   const root = new HTMLElement(null, {});
   let currentParent = root;
   let stack = [root];
+
+  //Map for storing opened tags.
   let map = new Array();
+  
   let pos_stack = [0];
   let lastTextPos = 0;
   let prevLastIndexPos = -1;
@@ -1022,6 +1025,7 @@ export function parse(
 
       if (!match[4] && kElementsClosedByOpening[currentParent.tagName]) {
         if (kElementsClosedByOpening[currentParent.tagName][match[2]]) {
+          //remove tag from map
           map[currentParent.tagName] = false;
           stack.pop();
           pos_stack.pop();
@@ -1033,6 +1037,7 @@ export function parse(
       ) as HTMLElement;
       stack.push(currentParent);
       pos_stack.push(prevLastIndexPos);
+      //save tag to map
       map[match[2]] = true;
       if (kBlockTextElements[match[2]]) {
         // a little test to find next </script> or </style> ...
@@ -1061,6 +1066,7 @@ export function parse(
       if (match[1] && kSelfClosingElements[match[2]]) continue;
       while (stack.length > 1) {
         if (currentParent.tagName == match[2]) {
+          //Remove tag from map.
           map[currentParent.tagName] = false;
           stack.pop();
           pos_stack.pop();
@@ -1068,6 +1074,7 @@ export function parse(
           break;
         } else {
           if(!map[match[2]]) {
+            //First, check if this tag is opend before. If not remove this tag.
             response.errors.push({
               tag: match[2],
               type: "not_opened",
