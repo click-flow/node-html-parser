@@ -194,8 +194,19 @@ describe('HTML Parser', function () {
 			});
 			result.root.toString().should.eql('<p>This<p>is a test</p></p>');
 		})
+
+		// Test for <p><div>ABC</abc><div>123</div></div></p>
+		it('should parse "<p><div>ABC</abc><div>123</div></div></p>"', function () {
+			var result = parseHTML('<p><div>ABC</abc><div>123</div></div></p>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.root.toString().should.eql('<p><div>ABC<div>123</div></div></p>');
+		})
 	});
 
+	describe('parseWithValidation', function () {
+		// parse with validation tests
 		it("should return false when html is invalid", () => {
 			const html = "<html><body><div><h1>Good</div></body></html>"
 			const resp = parseHTML(html, {
@@ -203,7 +214,7 @@ describe('HTML Parser', function () {
 			})
 			resp.root.toString().should.eql(html)
 			resp.valid.should.eql(false)
-    })
+    	})
 
 		it("should return unaltered html when it is invalid", () => {
 			const html = "<html><body><div><h1>Good</div></body></html>"
@@ -212,10 +223,6 @@ describe('HTML Parser', function () {
 			})
 			response.root.toString().should.eql(html)
 		})
-	})
-
-	describe('parseWithValidation', function () {
-		// parse with validation tests
 
 		describe('with validation', function () {
 			it('should return Object with valid: false.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
@@ -274,7 +281,14 @@ describe('HTML Parser', function () {
 				result.valid.should.eql(true);
 			})
 
-			// fix issue speed test
+			it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><h3><span></span><div></div></h3></div>" with fixIssues: true', function () {
+				var result = parseHTML('<div><h3><h3><span><span></a><div>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+				result.root.toString().should.eql('<div><h3></h3><h3><span></span><div></div></h3></div>');
+			})
 
 			it('should fix "<div><h3><h3><div>" to "<div><h3></h3><h3><div></div></h3></div>" with fixIssues: true', function () {
 				var result = parseHTML('<div><h3><h3><div>', {
@@ -294,13 +308,18 @@ describe('HTML Parser', function () {
 				result.root.toString().should.eql('<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>');
 			})
 
-			it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><h3><span><span></span></span></h3></div><div></div>" with fixIssues: true', function () {
-				var result = parseHTML('<div><h3><h3><span><span></a><div>', {
+			it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function () {
+				var result = parseHTML('<div></h3></div>', {
 					fixIssues: true,
 					validate: true
 				});
 				result.valid.should.eql(false);
-				result.root.toString().should.eql('<div><h3></h3><h3><span><span></span></span></h3></div><div></div>');
+				result.errors.should.eql([{
+					tag: 'h3',
+					type: 'not_opened',
+					message: 'h3 tag not opened',
+					pos: 6
+				}])
 			})
 
 			it('should fix "<img src="favicon.ico">1</img><style></style>" to "<img src="favicon.ico" />1<style></style>" with fixIssues: true', function () {
@@ -322,20 +341,6 @@ describe('HTML Parser', function () {
 					tag: 'div',
 					type: 'not_properly_closed',
 					message: 'div tag not properly closed',
-					pos: 6
-				}])
-			})
-
-			it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function () {
-				var result = parseHTML('<div></h3></div>', {
-					fixIssues: true,
-					validate: true
-				});
-				result.valid.should.eql(false);
-				result.errors.should.eql([{
-					tag: 'div',
-					type: 'not_closed',
-					message: 'div tag not closed',
 					pos: 6
 				}])
 			})
