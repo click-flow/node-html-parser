@@ -19,18 +19,18 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "he": "^1.1.1"
+    "he": "^1.2.0"
   },
   "devDependencies": {
     "@types/entities": "^1.1.1",
     "@types/he": "^1.1.1",
-    "@types/node": "^11.13.8",
+    "@types/node": "^11.15.20",
     "blanket": "^1.2.3",
     "del": "^4.1.1",
-    "gulp": "^4.0.1",
+    "gulp": "^4.0.2",
     "gulp-sequence": "^1.0.0",
     "gulp-shell": "0.7.0",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.3",
     "should": "^13.2.3",
     "spec": "^1.0.1",
     "travis-cov": "0.2.5",
